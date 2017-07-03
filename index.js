@@ -17,3 +17,21 @@ const params = {
     'OutputFormat': 'mp3',
     'VoiceId': 'Justin'
 }
+
+Polly.synthesizeSpeech(params, (err, data) => {
+  if (err) {
+    console.log(err.code)
+  } else if (data) {
+      if (data.AudioStream instanceof Buffer) {
+        s3.createBucket({ Bucket: bucketName }, () => {
+          let params = { Bucket: bucketName, Key: keyName, Body: data.AudioStream };
+          s3.putObject(params, (err, data) => {
+            if (err)
+              console.log(err)
+            else
+              console.log("Successfully uploaded data to " + bucketName + "/" + keyName);
+          });
+        });
+      }
+    }
+});
